@@ -1,0 +1,11 @@
+---
+# handlers file for jenkins
+- name: Reiniciar Firewall
+  command: firewall-cmd --reload
+
+- name: Reiniciar Jenkins
+  systemd:
+    name: jenkins
+    state: restarted
+    enabled: yes
+    daemon_reload: yes

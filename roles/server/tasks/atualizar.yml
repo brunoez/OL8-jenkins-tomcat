@@ -1,0 +1,7 @@
+---
+# Atualizar o servidor e os pacotes
+  - name: Atualizar os pacotes instalados
+    dnf:
+      name: "*"
+      state: latest
+...

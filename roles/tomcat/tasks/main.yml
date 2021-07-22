@@ -1,0 +1,60 @@
+---
+- name: Download e extração do Tomcat
+  unarchive:
+    src: https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.50/bin/apache-tomcat-8.5.50.tar.gz
+    dest: /opt
+    remote_src: yes
+
+- name: Veriricar se já existe o diretório /opt/tomcat
+  stat:
+    path: "/opt/tomcat"
+  register: exists_tomcat
+
+- name: Renomeando diretório para Tomcat
+  command: mv /opt/apache-tomcat-8.5.50 /opt/tomcat
+  when: exists_tomcat.stat.exists == False
+
+- name: Criando o usuário Tomcat
+  user:
+    name: tomcat
+    shell: /bin/false
+    create_home: yes
+
+- name: Mudando as permissões do diretorio do tomcat
+  file:
+    path: /opt/tomcat
+    owner: tomcat
+    group: tomcat
+    recurse: yes
+    mode: '0775'
+
+- name: Copiando o arquivo conf/server.xml (Mudando a porta para 8008)
+  copy:
+    src: server.xml
+    dest: /opt/tomcat/conf/server.xml
+
+- name: Copiando o arquivo conf/tomcat-users.xml (Criando o usuário Admin no Tomcat)
+  copy:
+    src: tomcat-users.xml
+    dest: /opt/tomcat/conf/tomcat-users.xml
+
+- name: Copiando o arquivo webapps/manager/META-INF/context.xml (Liberando o Acesso ao Tomcat para qualquer IP)
+  copy:
+    src: context.xml
+    dest: /opt/tomcat/webapps/manager/META-INF/context.xml
+
+- name: Habilitando a porta 8008 no Firewall
+  firewalld:
+    port: 8008/tcp
+    permanent: yes
+    state: enabled
+  notify:
+    - Reiniciar firewall
+
+- name: Copiando o arquivo tomcat.service para o SystemD
+  copy:
+    src: tomcat.service
+    dest: /etc/systemd/system/tomcat.service
+  notify:
+    - Reiniciar tomcat
+...

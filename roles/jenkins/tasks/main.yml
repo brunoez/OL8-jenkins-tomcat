@@ -1,0 +1,48 @@
+---
+# tasks file for jenkins
+- name: Verificar se existe o repositorio do Jenkins
+  stat:
+    path: "/etc/yum.repos.d/jenkins.repo"
+ # register: exists_jenkins
+
+- name: Adicionando repositório oficial do Jenkins
+  get_url:
+    url: http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+    dest: /etc/yum.repos.d/jenkins.repo
+    remote_src: yes
+#  when: exists_jenkins.stat.exists == False
+
+
+- name: Adicionando a Key do repositorio
+  rpm_key:
+    state: present
+    key: https://pkg.jenkins.io/redhat/jenkins.io.key
+
+- name: Instalação Jenkins
+  dnf:
+    name:
+      - jenkins
+    state: latest
+    update_cache: yes
+
+- name: Copiando o arquivo /etc/sysconfig/jenkins (Mudando a porta para 8888)
+  copy:
+    src: jenkins
+    dest: /etc/sysconfig/jenkins
+
+- name: Habilitando a porta 8888 no Firewall
+  firewalld:
+    port: 8888/tcp
+    permanent: yes
+    state: enabled
+  notify:
+    - Reiniciar Firewall
+    - Reiniciar Jenkins
+
+- name: Capturando a senha inicial do Jenkins
+  command: cat /var/lib/jenkins/secrets/initialAdminPassword
+  register: senhajnks
+
+- name: Exibindo a senha inicial do Jenkins
+  debug:
+    var: senhajnks.stdout

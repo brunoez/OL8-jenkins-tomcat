@@ -1,0 +1,5 @@
+---
+- include: atualizar.yml
+- include: dependencias.yml
+
+...

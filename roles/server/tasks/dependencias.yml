@@ -1,0 +1,13 @@
+---
+# Instalar dependências do projeto todo
+- name: Instalação das dependências
+  dnf:
+    name:
+      - java-1.8.0-openjdk
+      - maven
+      - git
+      - vim
+      - mlocate
+      - net-tools
+    state: latest
+...

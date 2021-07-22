@@ -1,0 +1,6 @@
+---
+- hosts: oracle
+  roles:
+  - server 
+  - tomcat
+  - jenkins

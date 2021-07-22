@@ -1,0 +1,14 @@
+---
+# handlers file for tomcat
+- name: Reiniciar tomcat
+  systemd:
+    name: tomcat
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+    
+
+- name: Reiniciar firewall
+  command: firewall-cmd --reload
+
+...
